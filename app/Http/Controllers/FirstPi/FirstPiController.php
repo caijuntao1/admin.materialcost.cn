@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FirstPi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FirstPiController extends Controller{
     public static function getFirstPiAPIData($page = 1,$spec_sku_id = ''){
@@ -65,45 +66,53 @@ class FirstPiController extends Controller{
         }else{
             $last_page = $request_data['last_page'];
         }
-        for($i = 1;$i <= $last_page;$i++){
-            $insert_datas = [];
-            $current_result = self::getFirstPiAPIData($i,$spec_sku_id);
-            $current_data = $current_result['data'];
-            if(!empty($current_data))foreach($current_data as $index => $record){
-                $update_data = [
-                    "order_id"=> $record['id'],
-                    "origin_order_id"=> $record['origin_order_id'],
-                    "shard_id"=> $record['shard_id'],
-                    "is_blind_box"=> $record['is_blind_box'],
-                    "sort_no"=> $record['sort_no'],
-                    "spec_sku_id"=> $record['spec_sku_id'],
-                    "spec_value"=> $record['spec_value'],
-                    "sale_price"=> $record['sale_price'],
-                    "buyer_user_id"=> $record['buyer_user_id'],
-                    "status"=> $record['status']['value'],
-                    "image_id"=> $record['image_id'],
-                    "goods_id"=> $record['goods_id'],
-                    "goods_price"=> $record['goods_price'],
-                    "total_num"=> $record['total_num'],
-                    "goods_image"=> $record['goods_image'],
-                    "goods_name"=> $record['goods_name'],
-                    "total_sort_no"=> $record['total_sort_no'],
-                    "can_buy"=> $record['can_buy'],
-                    "updated_at"=> time(),
-                ];
-                if(in_array($record['id'],$existed_ids)){
-                    //update
-                    $success = DB::table('firstpi_goods')->where('order_id',$record['id'])->update($update_data);
-                }else{
-                    //insert
-                    $update_data["created_at"] = time();
-                    $insert_datas[] = $update_data;
+        $now = time();
+        $i = 0;
+        Log::info('更新首派数据开始');
+        do{
+            if(time() >= ($now + (2 * $i))){
+                $insert_datas = [];
+                $current_result = self::getFirstPiAPIData(($i+1),$spec_sku_id);
+                Log::info(json_encode($current_result));
+                $current_data = $current_result['data'];
+                if(!empty($current_data))foreach($current_data as $index => $record){
+                    $update_data = [
+                        "order_id"=> $record['id'],
+                        "origin_order_id"=> $record['origin_order_id'],
+                        "shard_id"=> $record['shard_id'],
+                        "is_blind_box"=> $record['is_blind_box'],
+                        "sort_no"=> $record['sort_no'],
+                        "spec_sku_id"=> $record['spec_sku_id'],
+                        "spec_value"=> $record['spec_value'],
+                        "sale_price"=> $record['sale_price'],
+                        "buyer_user_id"=> $record['buyer_user_id'],
+                        "status"=> $record['status']['value'],
+                        "image_id"=> $record['image_id'],
+                        "goods_id"=> $record['goods_id'],
+                        "goods_price"=> $record['goods_price'],
+                        "total_num"=> $record['total_num'],
+                        "goods_image"=> $record['goods_image'],
+                        "goods_name"=> $record['goods_name'],
+                        "total_sort_no"=> $record['total_sort_no'],
+                        "can_buy"=> $record['can_buy'],
+                        "updated_at"=> time(),
+                    ];
+                    if(in_array($record['id'],$existed_ids)){
+                        //update
+                        $success = DB::table('firstpi_goods')->where('order_id',$record['id'])->update($update_data);
+                    }else{
+                        //insert
+                        $update_data["created_at"] = time();
+                        $insert_datas[] = $update_data;
+                    }
                 }
+                if(!empty($insert_datas)){
+                    $success = DB::table('firstpi_goods')->insert($insert_datas);
+                }
+                $i++;
             }
-            if(!empty($insert_datas)){
-                $success = DB::table('firstpi_goods')->insert($insert_datas);
-            }
-        }
+        }while($i < $last_page);
+        Log::info('更新首派数据结束');
         return true;
     }
     public function getList(Request $request){
