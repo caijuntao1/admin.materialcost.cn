@@ -17,7 +17,7 @@ use App\Http\Controllers\FirstPi\FirstPiController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-//Route::get('FirstPi/getFirstPiAllData',[FirstPiController::class , 'getFirstPiAPIData']);
+Route::get('FirstPi/getFirstPiAllData',[FirstPiController::class , 'getFirstPiAPIData']);
 Route::get('FirstPi/updateAllData',[FirstPiController::class , 'updateAllData']);
 Route::get('FirstPi/getList',[FirstPiController::class , 'getList']);
 Route::get('FirstPi/getCategoryList',[FirstPiController::class , 'getCategoryList']);

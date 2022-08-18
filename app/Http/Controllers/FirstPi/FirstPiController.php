@@ -3,14 +3,39 @@
 namespace App\Http\Controllers\FirstPi;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FirstPiController extends Controller{
+    public function FirstPiLogin(){
+        $url = "https://h5.firstpi.cn/index.php?s=/api/user/login";
+        $param = [
+            'from'      => 'h5',
+            'is_wx'     => 0,
+            'nickName'  => '13691775300',
+            'wxapp_id'  => '10001',
+            'loginType' => 1,
+            'password'  => 'Zhanghui',
+            'openid'    => '',
+            'token'     => '',
+            'is_h5'     => 1
+        ];
+        $http = new Http();
+        $response = $http->post($url, $param);
+        $result = json_decode($response['data'], true);
+        return $result;
+    }
     public static function getFirstPiAPIData($page = 1,$spec_sku_id = ''){
+        $login_data = self::FirstPiLogin();
+        if(!empty($login_data) && $login_data['code'] == 1){
+            $token = $login_data['data']['token'];
+        }else{
+            return array();
+        }
         $method = "GET";
-        $token = "&token=368236929bb9cf53c812416a0a565040";
+        $token = "&token=".$token;
         $querys = "s=/api/ordersale/salelists&page={$page}&order_by=sale_price&sort_by=asc&spec_sku_id={$spec_sku_id}&wxapp_id=10001&is_h5=1";
         $url = "https://h5.firstpi.cn/index.php?".$querys.$token;
         $curl = curl_init();
