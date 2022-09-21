@@ -45,7 +45,7 @@ class UserController extends Controller
                 //success
                 return response()->json(['code' => 200, 'msg' => $result['msg'], 'data' => $result['data']]);
             }else{
-                return response()->json(['code' => 201, 'msg' => $result['msg'], 'data' => $result['data']]);
+                return response()->json(['code' => 201, 'msg' => $result['msg'], 'data' => (object)[]]);
             }
         }else{
             return response()->json(['code' => 201, 'msg' => $result_msg, 'data' => (object)[]]);
