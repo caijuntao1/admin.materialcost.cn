@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstPi\FirstPiController;
+use App\Http\Controllers\h2ddd\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,3 +22,6 @@ Route::get('FirstPi/getFirstPiAllData',[FirstPiController::class , 'getFirstPiAP
 Route::get('FirstPi/updateAllData',[FirstPiController::class , 'updateAllData']);
 Route::get('FirstPi/getList',[FirstPiController::class , 'getList']);
 Route::get('FirstPi/getCategoryList',[FirstPiController::class , 'getCategoryList']);
+
+//氢动八蛇
+Route::get('h2ddd/exChangeSteps',[UserController::class , 'exChangeSteps']);
