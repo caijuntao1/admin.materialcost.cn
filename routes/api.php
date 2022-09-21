@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstPi\FirstPiController;
 use App\Http\Controllers\h2ddd\UserController;
+use App\Http\Controllers\h2ddd\AutoExChange;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,3 +26,4 @@ Route::get('FirstPi/getCategoryList',[FirstPiController::class , 'getCategoryLis
 
 //氢动八蛇
 Route::get('h2ddd/exChangeSteps',[UserController::class , 'exChangeSteps']);
+Route::get('h2ddd/autoExChange',[AutoExChange::class , 'autoExChange']);

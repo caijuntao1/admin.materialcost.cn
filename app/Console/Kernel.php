@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\h2ddd\AutoExChange;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -15,7 +16,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            Log::info("每日定时兑换步数");
+            AutoExChange::autoExChange();
+        })->dailyAt('01:00');
     }
 
     /**
