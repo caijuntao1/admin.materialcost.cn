@@ -30,7 +30,7 @@ class AutoExChange extends Controller
                         //success
                         Log::info('phone:'.$phone.'兑换成功:'.json_encode($result));
                         //每日一次的免费抽奖
-                        $url = "https://www.h2ddd.com/api/luck_draw/play?draw_id=1";
+                        $url = "https://www.h2ddd.com/api/luck_draw/play?draw_id=2";
                         $client = new GuzzleHttp\Client;
                         $response = $client->request('GET', $url, [
                             'headers' => ['token' => $result_data['token']],
