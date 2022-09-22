@@ -11,7 +11,7 @@ use GuzzleHttp;
 class AutoExChange extends Controller
 {
     public function autoExChange(){
-        $records_user = UserModel::whereNotNull('password')->get()->toArray();
+        $records_user = UserModel::whereNotNull('password')->where('is_auto',1)->get()->toArray();
         if(!empty($records_user)){
             foreach($records_user as $record_user){
                 $steps = 6000;

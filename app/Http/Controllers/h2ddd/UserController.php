@@ -19,16 +19,16 @@ class UserController extends Controller
         $validate = Validator::make($request_data,[
             'phone' => 'required',
             'password' => 'required',
-            'steps' => 'required',
+            'steps' => 'required|integer',
         ],[
             'phone.required' => '请输入电话号码',
             'password.required' => '请输入密码',
             'steps.required' => '请输入兑换步数',
+            'steps.integer' => '步数需为数字',
         ]);
         if ($validate->fails()) {
             return response()->json(['code' => 201, 'msg' => '缺少必填参数或参数不对', 'data' => $validate->errors()->toArray()]);
         }
-
         $steps = $request_data['steps'];
         $phone = $request_data['phone'];
         $password = $request_data['password'];
@@ -41,6 +41,7 @@ class UserController extends Controller
                 'verify' => false
             ]);
             $result = json_decode( $response->getBody(), true);
+            Log::info('phone:'.$phone.'已进行兑换:'.json_encode($result));
             if($result['code'] == 1){
                 //success
                 return response()->json(['code' => 200, 'msg' => $result['msg'], 'data' => $result['data']]);
