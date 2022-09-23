@@ -37,7 +37,7 @@ class AutoExChange extends Controller
                             'verify' => false
                         ]);
                         $result = json_decode( $response->getBody(), true);
-                        Log::info('phone:'.$phone.'抽奖成功:'.$result);
+                        Log::info('phone:'.$phone.'抽奖成功:'.json_encode($result));
                     }else{
                         Log::info('phone:'.$phone.'兑换失败:'.$result['msg']);
                     }
