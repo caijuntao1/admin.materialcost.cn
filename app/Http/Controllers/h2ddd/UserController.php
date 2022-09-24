@@ -121,6 +121,7 @@ class UserController extends Controller
             $http = new Http();
             $response = $http->post($url, $param);
             $result = json_decode($response['data'], true);
+            Log::info('请求登录返回结果:'.json_encode($result));
             if($result['code'] == 1){
                 //success
                 $update_data = [
