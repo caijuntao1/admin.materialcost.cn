@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp;
+use DB;
 
 class UserController extends Controller
 {
@@ -153,17 +154,12 @@ class UserController extends Controller
         $ip = $record_iplist['ip'];
         $http_port = $record_iplist['http_port'];
         $s5_port = $record_iplist['s5_port'];
-        $expire_at_timestamp = $record_iplist['expire_at_timestamp'];
+        $expire_at_timestamp = $record_iplist['expire_at'];
         // 要访问的目标页面
-        $targetUrl = "https://www.h2ddd.com/api/login/login";
+        $targetUrl = "https://www.h2ddd.com/api/login/login?phone=13691775300&password=Zhanghui@1";
 
         // 代理服务器
         $proxyServer = $ip.":".$s5_port;
-
-        $param = [
-            'phone'     => '13691775300',
-            'password'  => 'Zhanghui@1',
-        ];
 
         // 隧道身份信息
         $ch = curl_init();
@@ -189,10 +185,6 @@ class UserController extends Controller
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
-        curl_setopt($ch, CURLOPT_POST, 1);
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($param));
 
         curl_setopt($ch, CURLOPT_HEADER, true);
 
@@ -241,7 +233,7 @@ class UserController extends Controller
                 'ip'            => $data['ip'],
                 'http_port'     => $data['http_port'],
                 's5_port'       => $data['s5_port'],
-                'expire_at'     => $data['$expire_at_timestamp'],
+                'expire_at'     => $data['expire_at_timestamp'],
             ];
             DB::table('h2ddd_iplist')->insert($insert_data);
             return $insert_data;
