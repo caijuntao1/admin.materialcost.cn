@@ -199,7 +199,9 @@ class UserController extends Controller
         $appcode = "5b0f13e1d75f48cb8600bbfa513cc797";
         $headers = array();
         array_push($headers, "Authorization:APPCODE " . $appcode);
-        $querys = "amount=1&city=city&expire=5-30&format=json%7Ctxt&province=province&proxy_type=http%7Csocks&splitter=r%7Cn%7Crn&white_ip=120.78.184.135";
+        array_push($headers, "Content-Type:application/json");
+        array_push($headers, "Accept:application/json");
+        $querys = "amount=1&expire=5-30&format=json&splitter=rn&proxy_type=http&white_ip=120.78.184.135";
         $bodys = "";
         $url = $host . $path . "?" . $querys;
 
@@ -209,14 +211,24 @@ class UserController extends Controller
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, true);
+        curl_setopt($curl, CURLOPT_HEADER, false);
         if (1 == strpos("$".$host, "https://"))
         {
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         }
         $result = curl_exec($curl);
-        $response = json_decode($result, true);
-        var_dump($response);
+        $response = json_decode($result,true);
+        if(!empty($response['data'][0])){
+            $data = $response['data'][0];
+            $ip = $data['ip'];
+            $http_port = $data['http_port'];
+            $s5_port = $data['s5_port'];
+            $expire_at_timestamp = $data['expire_at_timestamp'];
+            var_dump($ip);
+            var_dump($http_port);
+            var_dump($s5_port);
+            var_dump($expire_at_timestamp);
+        }
     }
 }
