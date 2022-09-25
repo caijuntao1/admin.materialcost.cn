@@ -252,7 +252,7 @@ class UserController extends Controller
         array_push($headers, "Authorization:APPCODE " . $appcode);
         array_push($headers, "Content-Type:application/json");
         array_push($headers, "Accept:application/json");
-        $querys = "amount=1&expire=30&format=json&splitter=rn&proxy_type=http&white_ip=120.78.184.135,0.0.0.0";
+        $querys = "amount=1&expire=5-30&format=json&splitter=rn&proxy_type=http&white_ip=120.78.184.135,0.0.0.0";
         $bodys = "";
         $url = $host . $path . "?" . $querys;
 
@@ -269,6 +269,7 @@ class UserController extends Controller
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         }
         $result = curl_exec($curl);
+        Log::info('获取ip数据:'.$result);
         $response = json_decode($result,true);
         if(!empty($response['data'][0])){
             $data = $response['data'][0];
