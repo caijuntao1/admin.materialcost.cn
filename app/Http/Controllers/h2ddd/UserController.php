@@ -149,6 +149,8 @@ class UserController extends Controller
     }
     public function testLogin(Request $request)
     {
+        self::getProxyIp();
+        exit;
         // 要访问的目标页面
         $targetUrl = "https://www.baidu.com";
 
@@ -189,5 +191,33 @@ class UserController extends Controller
         curl_close($ch);
 
         var_dump($result);
+    }
+    public static function getProxyIp(){
+        $host = "http://chiyunapi.market.alicloudapi.com";
+        $path = "/proxy/shared/get";
+        $method = "GET";
+        $appcode = "5b0f13e1d75f48cb8600bbfa513cc797";
+        $headers = array();
+        array_push($headers, "Authorization:APPCODE " . $appcode);
+        $querys = "amount=1&city=city&expire=5-30&format=json%7Ctxt&province=province&proxy_type=http%7Csocks&splitter=r%7Cn%7Crn&white_ip=120.78.184.135";
+        $bodys = "";
+        $url = $host . $path . "?" . $querys;
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_FAILONERROR, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADER, true);
+        if (1 == strpos("$".$host, "https://"))
+        {
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        }
+        var_dump(curl_exec($curl));
+        $response = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        var_dump('--------------------');
+        var_dump($response);
     }
 }
