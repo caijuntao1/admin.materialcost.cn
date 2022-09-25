@@ -215,9 +215,8 @@ class UserController extends Controller
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         }
-        var_dump(curl_exec($curl));
-        $response = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        var_dump('--------------------');
+        $result = curl_exec($curl);
+        $response = json_decode($result, true);
         var_dump($response);
     }
 }
