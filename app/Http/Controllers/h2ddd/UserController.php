@@ -111,6 +111,7 @@ class UserController extends Controller
             }
         }catch (\Exception $exception){
             Log::info('访问八蛇服务器失败:'.$exception->getMessage());
+            echo ('兑换失败:访问八蛇服务器失败');exit;
             return array(false,'访问八蛇服务器失败!',array('token'=>null));
         }
     }
