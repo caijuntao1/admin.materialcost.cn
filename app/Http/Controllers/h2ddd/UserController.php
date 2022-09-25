@@ -149,13 +149,21 @@ class UserController extends Controller
     }
     public function testLogin(Request $request)
     {
-        self::getProxyIp();
-        exit;
+        $record_iplist = self::getProxyIp();
+        $ip = $record_iplist['ip'];
+        $http_port = $record_iplist['http_port'];
+        $s5_port = $record_iplist['s5_port'];
+        $expire_at_timestamp = $record_iplist['expire_at_timestamp'];
         // 要访问的目标页面
-        $targetUrl = "https://www.baidu.com";
+        $targetUrl = "https://www.h2ddd.com/api/login/login";
 
         // 代理服务器
-        $proxyServer = "178.121.3.0:25";
+        $proxyServer = $ip.":".$s5_port;
+
+        $param = [
+            'phone'     => '13691775300',
+            'password'  => 'Zhanghui@1',
+        ];
 
         // 隧道身份信息
         $ch = curl_init();
@@ -182,6 +190,10 @@ class UserController extends Controller
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 
+        curl_setopt($ch, CURLOPT_POST, 1);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($param));
+
         curl_setopt($ch, CURLOPT_HEADER, true);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -193,6 +205,10 @@ class UserController extends Controller
         var_dump($result);
     }
     public static function getProxyIp(){
+        $return_data = DB::table('h2ddd_iplist')->where('expire_at','<',time())->first();
+        if(!empty($return_data)){
+            return $return_data->toArray();
+        }
         $host = "http://chiyunapi.market.alicloudapi.com";
         $path = "/proxy/shared/get";
         $method = "GET";
@@ -221,14 +237,15 @@ class UserController extends Controller
         $response = json_decode($result,true);
         if(!empty($response['data'][0])){
             $data = $response['data'][0];
-            $ip = $data['ip'];
-            $http_port = $data['http_port'];
-            $s5_port = $data['s5_port'];
-            $expire_at_timestamp = $data['expire_at_timestamp'];
-            var_dump($ip);
-            var_dump($http_port);
-            var_dump($s5_port);
-            var_dump($expire_at_timestamp);
+            $insert_data = [
+                'ip'            => $data['ip'],
+                'http_port'     => $data['http_port'],
+                's5_port'       => $data['s5_port'],
+                'expire_at'     => $data['$expire_at_timestamp'],
+            ];
+            DB::table('h2ddd_iplist')->insert($insert_data);
+            return $insert_data;
         }
+        return false;
     }
 }
