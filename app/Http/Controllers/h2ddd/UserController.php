@@ -90,10 +90,8 @@ class UserController extends Controller
                 $client = new GuzzleHttp\Client;
                 $response = $client->request('GET', $url, [
                     'headers' => ['token' => $result_data['token']],
-                    'verify' => false,
-                    'proxy' => [
-                        'http'  => $ip.':'.$http_port, // Use this proxy with "http"
-                    ]
+                    'verify' => true,
+                    'proxy' => $ip.':'.$http_port
                 ]);
                 $result = json_decode( $response->getBody(), true);
                 Log::info('phone:'.$phone.'已进行兑换:'.json_encode($result));
@@ -252,7 +250,7 @@ class UserController extends Controller
         array_push($headers, "Authorization:APPCODE " . $appcode);
         array_push($headers, "Content-Type:application/json");
         array_push($headers, "Accept:application/json");
-        $querys = "amount=1&expire=5-30&format=json&splitter=rn&proxy_type=http&white_ip=120.78.184.135,0.0.0.0";
+        $querys = "amount=1&expire=5-30&format=json&splitter=rn&proxy_type=http&white_ip=120.78.184.135";
         $bodys = "";
         $url = $host . $path . "?" . $querys;
 
