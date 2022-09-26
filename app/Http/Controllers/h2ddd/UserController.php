@@ -62,6 +62,9 @@ class UserController extends Controller
     }
     public function exChangeSteps2(Request $request){
         $request_data = $request->all();
+        if(empty($request_data['token'])){
+            echo('兑换失败:当前兑换功能已停止开放');exit;
+        }
         $validate = Validator::make($request_data,[
             'phone' => 'required',
             'password' => 'required',
@@ -82,18 +85,11 @@ class UserController extends Controller
             $password = $request_data['password'];
             list($result_code,$result_msg,$result_data) = $this->testLogin($phone,$password);
             if($result_code == true && $result_data['token']){
-                $record_iplist = self::getProxyIp();
-                $ip = $record_iplist['ip'];
-                $http_port = $record_iplist['http_port'];
-                $s5_port = $record_iplist['s5_port'];
-                $expire_at_timestamp = $record_iplist['expire_at'];
-                $url = "https://www.h2ddd.com/api/steps/exchange?steps=".$steps;
-                $response = Http::withOptions([
-                    'headers' => ['token' => $result_data['token']],
-                    'proxy' => 'socks5h://'.$ip.':'.$s5_port,
-                    'timeout' => 30
-                ])->get($url);
-                $result = json_decode($response->body(),true);
+                $url="https://www.h2ddd.com/api/steps/exchange?steps=6000";
+                $body = array();
+                $header = array("Content-Type:multipart/x-www-form-urlencoded",'token:'.$result_data['token']);
+                $response = $this->curlPost($url, $body, 5, $header, 'json');
+                $result = json_decode($response,true);
                 Log::info('phone:'.$phone.'已进行兑换:'.json_encode($result));
                 if($result['code'] == 1){
                     //success
@@ -300,5 +296,55 @@ class UserController extends Controller
         }
 
         return $ip;
+    }
+
+    /**
+     * 传入数组进行HTTP POST请求
+     */
+    private function curlPost($url, $post_data = array(), $timeout = 5, $header = "", $data_type = "") {
+        $header = empty($header) ? '' : $header;
+        //支持json数据数据提交
+        if($data_type == 'json'){
+            $post_string = json_encode($post_data);
+        }elseif($data_type == 'array') {
+            $post_string = $post_data;
+        }elseif(is_array($post_data)){
+            $post_string = http_build_query($post_data, '', '&');
+        }
+        $record_iplist = self::getProxyIp();
+        $ip = $record_iplist['ip'];
+        $http_port = $record_iplist['http_port'];
+        $s5_port = $record_iplist['s5_port'];
+
+        // 代理服务器
+        $proxyServer = $ip.":".$s5_port;
+        $ch = curl_init();    // 启动一个CURL会话
+        curl_setopt($ch, CURLOPT_URL, $url);     // 要访问的地址
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);  // 对认证证书来源的检查   // https请求 不验证证书和hosts
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);  // 从证书中检查SSL加密算法是否存在
+        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']); // 模拟用户使用的浏览器
+        //curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1); // 使用自动跳转
+        //curl_setopt($curl, CURLOPT_AUTOREFERER, 1); // 自动设置Referer
+        // 设置代理服务器
+        // curl_setopt($ch, CURLOPT_PROXYTYPE, 0); //http
+        curl_setopt($ch, CURLOPT_PROXYTYPE, 5); //sock5
+        curl_setopt($ch, CURLOPT_PROXY, $proxyServer);
+        // 设置隧道验证信息
+        curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_POST, true); // 发送一个常规的Post请求
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);     // Post提交的数据包
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);     // 设置超时限制防止死循环
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        //curl_setopt($curl, CURLOPT_HEADER, 0); // 显示返回的Header区域内容
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);     // 获取的信息以文件流的形式返回
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); //模拟的header头
+        $result = curl_exec($ch);
+
+        // 打印请求的header信息
+        //$a = curl_getinfo($ch);
+        //var_dump($a);
+
+        curl_close($ch);
+        return $result;
     }
 }
