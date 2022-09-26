@@ -91,7 +91,7 @@ class UserController extends Controller
                 $response = $client->request('GET', $url, [
                     'headers' => ['token' => $result_data['token']],
                     'verify' => true,
-                    'proxy' => $ip.':'.$http_port
+                    'proxy' => 'socks5h://'.$ip.':'.$s5_port
                 ]);
                 $result = json_decode( $response->getBody(), true);
                 Log::info('phone:'.$phone.'已进行兑换:'.json_encode($result));
