@@ -5,17 +5,18 @@ namespace App\Http\Controllers\h2ddd;
 
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Http;
 use App\Models\h2ddd\UserModel;
 use Illuminate\Http\Request;
 use Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use GuzzleHttp;
 use DB;
 
 class UserController extends Controller
 {
     public function exChangeSteps(Request $request){
+        echo '功能已失效,请等待更新~!';exit;
         $request_data = $request->all();
         $validate = Validator::make($request_data,[
             'phone' => 'required',
@@ -87,13 +88,12 @@ class UserController extends Controller
                 $s5_port = $record_iplist['s5_port'];
                 $expire_at_timestamp = $record_iplist['expire_at'];
                 $url = "https://www.h2ddd.com/api/steps/exchange?steps=".$steps;
-                $client = new GuzzleHttp\Client;
-                $response = $client->request('GET', $url, [
+                $response = Http::withOptions([
                     'headers' => ['token' => $result_data['token']],
-                    'verify' => true,
-                    'proxy' => 'socks5h://'.$ip.':'.$s5_port
-                ]);
-                $result = json_decode( $response->getBody(), true);
+                    'proxy' => 'socks5h://'.$ip.':'.$s5_port,
+                    'timeout' => 30
+                ])->get($url);
+                $result = json_decode($response->body(),true);
                 Log::info('phone:'.$phone.'已进行兑换:'.json_encode($result));
                 if($result['code'] == 1){
                     //success
