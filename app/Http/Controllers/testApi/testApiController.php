@@ -44,10 +44,25 @@ class testApiController extends Controller
     }
     public static function requestApi($title = '',$url = '',$cache_key = ''){
         try {
-            $http = new Client;
-            $response = $http->get($url);
-            $result = json_decode( $response->getBody(), true);
-            Log::info($title.'目前运行正常!');
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+            if (!empty($header)) {
+                curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+            }
+            if (!empty($data)){
+                curl_setopt($curl, CURLOPT_POST, 1);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            }
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            $response = curl_exec($curl);
+            curl_close($curl);
+//            $http = new Client;
+//            $response = $http->get($url);
+//            $result = json_decode( $response->getBody(), true);
+            Log::info($title.'目前运行正常:');
+            Log::info($response);
             if (Cache::has($cache_key)) {
                 Cache::forget($cache_key);
             }
