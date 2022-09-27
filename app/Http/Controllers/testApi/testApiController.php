@@ -58,11 +58,16 @@ class testApiController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
             $response = curl_exec($curl);
             curl_close($curl);
+            $response = json_decode($response,true);
+            if(empty($response) || $response['code'] != 200){
+                Log::info(json_encode($response));
+                throw new Exception('访问失败');
+            }
 //            $http = new Client;
 //            $response = $http->get($url);
 //            $result = json_decode( $response->getBody(), true);
             Log::info($title.'目前运行正常:');
-            Log::info($response);
+            Log::info(json_encode($response));
             if (Cache::has($cache_key)) {
                 Cache::forget($cache_key);
             }
@@ -77,6 +82,7 @@ class testApiController extends Controller
                     Cache::forever($cache_key, time());
                     $content = $title.'访问失败已超过了'.$diff.'分钟,请火速处理!!';
                 }else{
+                    Log::info($title.'访问失败已超过了'.$diff.'分钟');
                     return false;
                 }
             }else{
