@@ -167,7 +167,7 @@ class UserController extends Controller
             $s5_port = $record_iplist['s5_port'];
             $expire_at_timestamp = $record_iplist['expire_at'];
             // 要访问的目标页面
-            $targetUrl = "https://www.h2ddd.com/api/login/login?phone=13691775300&password=Zhanghui@1";
+            $targetUrl = "https://www.h2ddd.com/api/login/login?phone=".$phone."&password=".$password;
 
             // 代理服务器
             $proxyServer = $ip.":".$s5_port;
