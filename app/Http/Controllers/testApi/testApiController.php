@@ -60,7 +60,6 @@ class testApiController extends Controller
             curl_close($curl);
             $response = json_decode($response,true);
             if(empty($response) || $response['code'] != 200){
-                Log::info(json_encode($response));
                 throw new Exception('访问失败');
             }
 //            $http = new Client;
