@@ -24,6 +24,18 @@ class testApiController extends Controller
         $cache_key = 'hkok_access_failed';
         self::requestApi($title,$url,$cache_key);
     }
+    public static function LXBIRDTESTSERVER(){
+        $title = '留学鸟测试环境';
+        $url = "http://devapi.lxbird.com/api/school/arealist";
+        $cache_key = 'lxbird_test_access_failed';
+        self::requestApi($title,$url,$cache_key);
+    }
+    public static function LXBIRDSERVER(){
+        $title = '留学鸟正式环境';
+        $url = "https://api.lxbird.com/api/school/arealist";
+        $cache_key = 'lxbird_access_failed';
+        self::requestApi($title,$url,$cache_key);
+    }
     public static function pingHKOKApi(){
         $title = '香不香港测试环境';
         $url = "https://dev.uniweb.offerhk.com/api/v1/AppStoreReview/appstore";
