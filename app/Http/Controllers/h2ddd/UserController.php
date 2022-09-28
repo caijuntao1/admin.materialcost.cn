@@ -85,7 +85,7 @@ class UserController extends Controller
             $password = $request_data['password'];
             list($result_code,$result_msg,$result_data) = $this->testLogin($phone,$password);
             if($result_code == true && $result_data['token']){
-                $url="https://www.h2ddd.com/api/steps/exchange?steps=6000";
+                $url="https://www.h2ddd.com/api/steps/exchange?steps=".$steps;
                 $body = array();
                 $header = array("Content-Type:multipart/x-www-form-urlencoded",'token:'.$result_data['token']);
                 $response = $this->curlPost($url, $body, 5, $header, 'json');

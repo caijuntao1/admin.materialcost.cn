@@ -62,10 +62,6 @@ class testApiController extends Controller
             if(empty($response) || $response['code'] != 200){
                 throw new Exception('访问失败');
             }
-//            $http = new Client;
-//            $response = $http->get($url);
-//            $result = json_decode( $response->getBody(), true);
-            Log::info($title.'目前运行正常:');
             Log::info(json_encode($response));
             if (Cache::has($cache_key)) {
                 Cache::forget($cache_key);
