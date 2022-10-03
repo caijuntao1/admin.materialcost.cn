@@ -89,10 +89,10 @@ class UserController extends Controller
                 'updated_at'    => time(),
                 'exchange_qty'  => 1,
             ]);
-            return response()->json(['code' => 201, 'msg' => '新账号免费赠送一次兑换,刷新当前页面即可自动兑换!', 'data' => $validate->errors()->toArray()]);
+            echo ('新账号免费赠送一次兑换,刷新当前页面即可自动兑换!');exit;
         }else{
             if($record_user->exchange_qty <= 0){
-                return response()->json(['code' => 201, 'msg' => '该账号可兑换次数不足,请联系管理员充值', 'data' => $validate->errors()->toArray()]);
+                echo ('该账号可兑换次数不足,请联系管理员充值');exit;
             }
         }
         try {
@@ -116,8 +116,7 @@ class UserController extends Controller
                         'updated_at'    => time(),
                         'record'        => 1,
                     ]);
-                    echo ($result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score']);exit;
-                    return response()->json(['code' => 200, 'msg' => $result['msg'], 'data' => $result['data']]);
+                    echo ($result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.$record_user->exchange_qty);exit;
                 }else{
                     throw new Exception($result['msg']);
                 }
