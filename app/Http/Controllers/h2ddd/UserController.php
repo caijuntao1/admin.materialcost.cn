@@ -74,7 +74,6 @@ class UserController extends Controller
             echo ('<p style="font-size:70px">缺少必填参数或参数不对:'.current($validate->errors()->toArray())[0].'</p>');exit;
             return response()->json(['code' => 201, 'msg' => '缺少必填参数或参数不对', 'data' => $validate->errors()->toArray()]);
         }
-        $steps = $request_data['steps'];
         $phone = $request_data['phone'];
         $password = $request_data['password'];
         $record_user = UserModel::where('phone',$phone)->first();
