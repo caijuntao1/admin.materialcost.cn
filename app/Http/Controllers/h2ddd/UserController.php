@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp;
 use DB;
+use Exception;
 
 class UserController extends Controller
 {
@@ -62,9 +63,6 @@ class UserController extends Controller
     }
     public function exChangeSteps2(Request $request){
         $request_data = $request->all();
-        if(empty($request_data['token'])){
-            echo('兑换失败:当前兑换功能已停止开放');exit;
-        }
         $validate = Validator::make($request_data,[
             'phone' => 'required',
             'password' => 'required',
@@ -79,33 +77,64 @@ class UserController extends Controller
             echo ('缺少必填参数或参数不对:'.current($validate->errors()->toArray())[0]);exit;
             return response()->json(['code' => 201, 'msg' => '缺少必填参数或参数不对', 'data' => $validate->errors()->toArray()]);
         }
+        $steps = $request_data['steps'];
+        $phone = $request_data['phone'];
+        $password = $request_data['password'];
+        $record_user = UserModel::where('phone',$phone)->first();
+        if(empty($record_user)){
+            $success = UserModel::insert([
+                'phone'         => $phone,
+                'password'      => $password,
+                'created_at'    => time(),
+                'updated_at'    => time(),
+                'exchange_qty'  => 1,
+            ]);
+            return response()->json(['code' => 201, 'msg' => '新账号免费赠送一次兑换,刷新当前页面即可自动兑换!', 'data' => $validate->errors()->toArray()]);
+        }else{
+            if($record_user->exchange_qty <= 0){
+                return response()->json(['code' => 201, 'msg' => '该账号可兑换次数不足,请联系管理员充值', 'data' => $validate->errors()->toArray()]);
+            }
+        }
         try {
-            $steps = $request_data['steps'];
-            $phone = $request_data['phone'];
-            $password = $request_data['password'];
             list($result_code,$result_msg,$result_data) = $this->testLogin($phone,$password);
             if($result_code == true && $result_data['token']){
-                $url="https://www.h2ddd.com/api/steps/exchange?steps=".$steps;
+                $url="https://www.h2ddd.com/api/steps/exchange?steps=1000";
                 $body = array();
                 $header = array("Content-Type:multipart/x-www-form-urlencoded",'token:'.$result_data['token']);
-                $response = $this->curlPost($url, $body, 5, $header, 'json');
+                $response = $this->curlPost($url, $body, 60, $header, 'json');
                 $result = json_decode($response,true);
-                Log::info('phone:'.$phone.'已进行兑换:'.json_encode($result));
+                Log::info('phone:'.$phone.'已进行兑换:');
+                Log::info($result);
                 if($result['code'] == 1){
                     //success
+                    $success = UserModel::where('phone',$phone)->decrement('exchange_qty',1);
+                    $success2 = DB::table('h2ddd_user_exchange')->insert([
+                        'user_id'       => $record_user->id,
+                        'steps'         => $result['data']['steps'],
+                        'score'         => $result['data']['score'],
+                        'created_at'    => time(),
+                        'updated_at'    => time(),
+                        'record'        => 1,
+                    ]);
                     echo ($result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score']);exit;
                     return response()->json(['code' => 200, 'msg' => $result['msg'], 'data' => $result['data']]);
                 }else{
-                    echo ('兑换失败:'.$result['msg']);exit;
-                    return response()->json(['code' => 201, 'msg' => $result['msg'], 'data' => (object)[]]);
+                    throw new Exception($result['msg']);
                 }
             }else{
-                echo ('兑换失败:'.$result_msg);exit;
-                return response()->json(['code' => 201, 'msg' => $result_msg, 'data' => (object)[]]);
+                throw new Exception($result_msg);
             }
         }catch (\Exception $exception){
-            Log::info('访问八蛇服务器失败:'.$exception->getMessage());
-            echo ('兑换失败:访问八蛇服务器失败');exit;
+            Log::info('兑换失败:'.$exception->getMessage());
+            $success2 = DB::table('h2ddd_user_exchange')->insert([
+                'user_id'       => $record_user->id,
+                'steps'         => 0,
+                'score'         => 0,
+                'created_at'    => time(),
+                'updated_at'    => time(),
+                'record'        => 2,
+            ]);
+            echo ('兑换失败:'.$exception->getMessage());exit;
             return array(false,'访问八蛇服务器失败!',array('token'=>null));
         }
     }
@@ -301,7 +330,7 @@ class UserController extends Controller
     /**
      * 传入数组进行HTTP POST请求
      */
-    private function curlPost($url, $post_data = array(), $timeout = 5, $header = "", $data_type = "") {
+    private function curlPost($url, $post_data = array(), $timeout = 20, $header = "", $data_type = "") {
         $header = empty($header) ? '' : $header;
         //支持json数据数据提交
         if($data_type == 'json'){
