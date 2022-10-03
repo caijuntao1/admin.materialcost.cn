@@ -112,7 +112,7 @@ class UserController extends Controller
                         'updated_at'    => time(),
                         'record'        => 1,
                     ]);
-                    echo ('<p style="font-size:70px">'.$result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.$record_user->exchange_qty.'</p>');exit;
+                    echo ('<p style="font-size:70px">'.$result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.($record_user->exchange_qty-1).'</p>');exit;
                 }else{
                     throw new Exception($result['msg']);
                 }
