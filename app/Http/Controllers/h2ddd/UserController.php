@@ -74,7 +74,7 @@ class UserController extends Controller
             'steps.integer' => '步数需为数字',
         ]);
         if ($validate->fails()) {
-            echo ('缺少必填参数或参数不对:'.current($validate->errors()->toArray())[0]);exit;
+            echo ('<p style="font-size:70px">缺少必填参数或参数不对:'.current($validate->errors()->toArray())[0].'</p>');exit;
             return response()->json(['code' => 201, 'msg' => '缺少必填参数或参数不对', 'data' => $validate->errors()->toArray()]);
         }
         $steps = $request_data['steps'];
@@ -89,10 +89,10 @@ class UserController extends Controller
                 'updated_at'    => time(),
                 'exchange_qty'  => 1,
             ]);
-            echo ('新账号免费赠送一次兑换,刷新当前页面即可自动兑换!');exit;
+            echo ('<p style="font-size:70px">新账号免费赠送一次兑换,刷新当前页面即可自动兑换!'.'</p>');exit;
         }else{
             if($record_user->exchange_qty <= 0){
-                echo ('该账号可兑换次数不足,请联系管理员充值');exit;
+                echo ('<p style="font-size:70px">该账号可兑换次数不足,请联系管理员充值'.'</p>');exit;
             }
         }
         try {
@@ -116,7 +116,7 @@ class UserController extends Controller
                         'updated_at'    => time(),
                         'record'        => 1,
                     ]);
-                    echo ($result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.$record_user->exchange_qty);exit;
+                    echo ('<p style="font-size:70px">'.$result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.$record_user->exchange_qty.'</p>');exit;
                 }else{
                     throw new Exception($result['msg']);
                 }
@@ -133,7 +133,7 @@ class UserController extends Controller
                 'updated_at'    => time(),
                 'record'        => 2,
             ]);
-            echo ('兑换失败:'.$exception->getMessage());exit;
+            echo ('<p style="font-size:70px">兑换失败:'.$exception->getMessage().'</p>');exit;
             return array(false,'访问八蛇服务器失败!',array('token'=>null));
         }
     }
