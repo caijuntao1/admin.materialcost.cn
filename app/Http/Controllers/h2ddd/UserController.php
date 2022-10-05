@@ -302,6 +302,13 @@ class UserController extends Controller
 
             curl_close($ch);
             Log::info('请求登录返回结果:'.$result);
+            if(empty($result)){
+                DB::table('h2ddd_iplist')
+                    ->update([
+                        'expire_at'=>null
+                    ]);
+                return array(false,'登录返回结果错误,请联系管理员处理',array('token'=>null));
+            }
             $response = json_decode($result,true);
             if($response['code'] == 1){
                 //success
