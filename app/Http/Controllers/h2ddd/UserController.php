@@ -16,6 +16,69 @@ use Exception;
 
 class UserController extends Controller
 {
+    public function getChangeQty(Request $request){
+        $request_data = $request->all();
+        $validate = Validator::make($request_data,[
+            'phone' => 'required',
+        ],[
+            'phone.required' => '请输入电话号码',
+        ]);
+        if ($validate->fails()) {
+            echo ('<p style="font-size:70px">'.current($validate->errors()->toArray())[0].'</p>');exit;
+        }
+        $phone = $request_data['phone'];
+        $record_user = UserModel::where('phone',$phone)
+            ->first();
+        if(empty($record_user)){
+            echo ('<p style="font-size:70px">查找不到该用户,请确认后重试</p>');
+        }else{
+            echo ('<p style="font-size:70px">'.$phone.'剩余可兑换次数:'.$record_user->exchange_qty.'</p>');
+        }
+        exit;
+    }
+    public function rechargeChangeQty(Request $request){
+        $request_data = $request->all();
+        $validate = Validator::make($request_data,[
+            'phone' => 'required',
+            'qty' => 'required|integer',
+        ],[
+            'phone.required' => '请输入电话号码',
+            'qty.required' => '请输入充值次数',
+            'qty.integer' => '充值次数需为数字',
+        ]);
+        if ($validate->fails()) {
+            echo ('<p style="font-size:70px">'.current($validate->errors()->toArray())[0].'</p>');exit;
+        }
+        $phone = $request_data['phone'];
+        $qty = $request_data['qty'];
+        Log::info('正在为'.$phone.'充值兑换次数:'.$qty);
+        $record_user = UserModel::where('phone',$phone)
+            ->first();
+        if(empty($record_user)){
+            $success = UserModel::insert([
+                'phone'         => $phone,
+                'password'      => 'test',
+                'created_at'    => time(),
+                'updated_at'    => time(),
+                'exchange_qty'  => $qty,
+            ]);
+            if($success){
+                echo ('<p style="font-size:70px">充值成功,'.$phone.'剩余可兑换次数:'.$qty.'</p>');
+            }else{
+                echo ('<p style="font-size:70px">充值失败,请稍后重试</p>');
+            }
+        }else{
+            $success = UserModel::where('phone',$phone)->update([
+                'exchange_qty'  => ($record_user->exchange_qty+$qty)
+            ]);
+            if($success){
+                echo ('<p style="font-size:70px">充值成功,'.$phone.'剩余可兑换次数:'.($record_user->exchange_qty+$qty).'</p>');
+            }else{
+                echo ('<p style="font-size:70px">充值失败,请稍后重试</p>');
+            }
+        }
+        exit;
+    }
     public function exChangeSteps(Request $request){
         echo '功能已失效,请等待更新~!';exit;
         $request_data = $request->all();
@@ -90,6 +153,14 @@ class UserController extends Controller
             if($record_user->exchange_qty <= 0){
                 echo ('<p style="font-size:70px">该账号可兑换次数不足,请联系管理员充值'.'</p>');exit;
             }
+        }
+        $is_changed = DB::table('h2ddd_user_exchange')
+            ->where('user_id',$record_user->id)
+            ->WhereBetween('created_at',[strtotime(date('Y-m-d 00:00:00')),strtotime(date('Y-m-d 23:59:59'))])
+            ->where('record',1)
+            ->first();
+        if($is_changed){
+            echo ('<p style="font-size:70px">该账号今日已成功兑换,请不要重复请求!'.'</p>');exit;
         }
         try {
             list($result_code,$result_msg,$result_data) = $this->testLogin($phone,$password);
