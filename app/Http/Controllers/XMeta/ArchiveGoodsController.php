@@ -73,6 +73,14 @@ class ArchiveGoodsController extends Controller
 //            ]
 //        ];
         $all_total = 0;
+        $all_count = 0;
+        $statistics_id = DB::table('xmeta_statistics')->insertGetId([
+            'total_price'   => 0,
+            'total_qty'   => 0,
+            'created_at'   => time(),
+            'updated_at'   => time(),
+            'data_json'   =>'',
+        ]);
         foreach($goods_array as $item){
             $url = "https://api.x-metash.com/api/prod/NFTMall/h5/goods/archiveGoods";
             $client = new GuzzleHttp\Client;
@@ -101,6 +109,7 @@ class ArchiveGoodsController extends Controller
                 $insert_data = [];
                 foreach($records_goods as $record_goods){
                     $insert_data[] = [
+                        'statistics_id' => $statistics_id,
                         'platformId'    => $item['platformId'],
                         'archiveId'     => $item['archiveId'],
                         'goodsId'       => $record_goods['goodsId'],
@@ -118,6 +127,7 @@ class ArchiveGoodsController extends Controller
             $goods_count = count($records_goods);
             $goods_total = array_sum(array_column($records_goods,'goodsPrice'));
             $all_total += $goods_total;
+            $all_count += $goods_count;
             echo ($item['name'].'已售出:'.$goods_count.'份,合计:'.$goods_total.'元');
             echo ('<br>');
         }
@@ -131,6 +141,10 @@ class ArchiveGoodsController extends Controller
             echo ('<br>');
             echo ('相隔近'.ceil(($nowTime-Cache::get($cache_key))/60).'分钟共计卖出'.($all_total-Cache::get($cache_key2)).'元;');
         }
+        DB::table('xmeta_statistics')->where('id',$statistics_id)->update([
+            'total_price' => $all_total,
+            'total_qty' => $all_count,
+        ]);
         Cache::put($cache_key,$nowTime);
         Cache::put($cache_key2,$all_total);
     }
