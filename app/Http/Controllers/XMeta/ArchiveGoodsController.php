@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp;
+use Illuminate\Support\Facades\Cache;
 
 class ArchiveGoodsController extends Controller
 {
@@ -101,6 +102,15 @@ class ArchiveGoodsController extends Controller
             echo ($item['name'].'已售出:'.$goods_count.'份,合计:'.$goods_total.'元');
             echo ('<br>');
         }
-        echo (date('Y-m-d H:i:s').'总计卖出:'.$all_total.'元');
+        $cache_key = 'h2ddd_goods_last_updatetime';
+        $cache_key2 = 'h2ddd_goods_last_salestotal';
+        $nowTime = time();
+        if(Cache::has($cache_key)){
+            echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;上一期查询'.date('Y-m-d H:i:s',Cache::get($cache_key)).'总计卖出:'.Cache::get($cache_key2).'元');
+        }else{
+            echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;');
+        }
+        Cache::put($cache_key,$nowTime);
+        Cache::put($cache_key2,$all_total);
     }
 }
