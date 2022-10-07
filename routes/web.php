@@ -26,3 +26,4 @@ Route::any('h2ddd/getChangeQty', [App\Http\Controllers\h2ddd\UserController::cla
 Route::any('h2ddd/rechargeChangeQty', [App\Http\Controllers\h2ddd\UserController::class, 'rechargeChangeQty']);
 Route::any('wechat', [App\Http\Controllers\Wechat\WechatReplyController::class, 'reply']);
 Route::any('pingHKOKApi', [App\Http\Controllers\testApi\testApiController::class, 'pingHKOKApi']);
+Route::get('xmeta/updateGoods', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'updateGoods']);
