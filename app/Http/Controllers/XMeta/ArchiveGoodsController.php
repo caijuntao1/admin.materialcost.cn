@@ -106,7 +106,7 @@ class ArchiveGoodsController extends Controller
         $cache_key2 = 'h2ddd_goods_last_salestotal';
         $nowTime = time();
         if(Cache::has($cache_key)){
-            echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;上一期查询'.date('Y-m-d H:i:s',Cache::get($cache_key)).'总计卖出:'.Cache::get($cache_key2).'元');
+            echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;上一期查询'.date('Y-m-d H:i:s',Cache::get($cache_key)).'总计卖出:'.Cache::get($cache_key2).'元;相隔近'.ceil(($nowTime-Cache::get($cache_key))/60).'分钟共计卖出'.($all_total-Cache::get($cache_key2)).'元;');
         }else{
             echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;');
         }
