@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ArchiveGoodsController extends Controller
 {
@@ -96,6 +97,24 @@ class ArchiveGoodsController extends Controller
             );
             $result = json_decode( $request->getBody(), true);
             $records_goods = $result['data']['goodsArchiveList'] ?? [];
+            if(count($records_goods) > 0){
+                $insert_data = [];
+                foreach($records_goods as $record_goods){
+                    $insert_data[] = [
+                        'platformId'    => $item['platformId'],
+                        'archiveId'     => $item['archiveId'],
+                        'goodsId'       => $record_goods['goodsId'],
+                        'goodsName'     => $record_goods['goodsName'],
+                        'goodsNo'       => $record_goods['goodsNo'],
+                        'goodsPrice'    => $record_goods['goodsPrice'],
+                        'sellStatus'    => $record_goods['sellStatus'],
+                        'sellTime'      => $record_goods['sellTime'],
+                        'created_at'    => time(),
+                        'updated_at'    => time(),
+                    ];
+                }
+                DB::table('xmeta_goods')->insert($insert_data);
+            }
             $goods_count = count($records_goods);
             $goods_total = array_sum(array_column($records_goods,'goodsPrice'));
             $all_total += $goods_total;
@@ -105,10 +124,12 @@ class ArchiveGoodsController extends Controller
         $cache_key = 'h2ddd_goods_last_updatetime';
         $cache_key2 = 'h2ddd_goods_last_salestotal';
         $nowTime = time();
+        echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;');
         if(Cache::has($cache_key)){
-            echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;上一期查询'.date('Y-m-d H:i:s',Cache::get($cache_key)).'总计卖出:'.Cache::get($cache_key2).'元;相隔近'.ceil(($nowTime-Cache::get($cache_key))/60).'分钟共计卖出'.($all_total-Cache::get($cache_key2)).'元;');
-        }else{
-            echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;');
+            echo ('<br>');
+            echo ('上一期查询'.date('Y-m-d H:i:s',Cache::get($cache_key)).'总计卖出:'.Cache::get($cache_key2).'元;');
+            echo ('<br>');
+            echo ('相隔近'.ceil(($nowTime-Cache::get($cache_key))/60).'分钟共计卖出'.($all_total-Cache::get($cache_key2)).'元;');
         }
         Cache::put($cache_key,$nowTime);
         Cache::put($cache_key2,$all_total);
