@@ -85,6 +85,7 @@ class ArchiveGoodsController extends Controller
             'updated_at'   => time(),
             'data_json'   =>'',
         ]);
+        $records_category = $this->getMinPriceList();
         foreach($goods_array as $item){
             $url = "https://api.x-metash.com/api/prod/NFTMall/h5/goods/archiveGoods";
             $client = new GuzzleHttp\Client;
@@ -128,11 +129,17 @@ class ArchiveGoodsController extends Controller
                 }
                 DB::table('xmeta_goods')->insert($insert_data);
             }
+
             $goods_count = count($records_goods);
             $goods_total = array_sum(array_column($records_goods,'goodsPrice'));
             $all_total += $goods_total;
             $all_count += $goods_count;
-            echo ($item['name'].'已售出:'.$goods_count.'份,合计:'.$goods_total.'元');
+            echo ($item['name'].'已售出:'.$goods_count.'份,合计:'.$goods_total.'元;');
+            foreach($records_category as $record_category){
+                if($record_category['id'] == $item['archiveId']){
+                    echo ('当前寄售最低价:'.$record_category['goodsMinPrice']);
+                }
+            }
             echo ('<br>');
         }
         $cache_key = 'h2ddd_goods_last_updatetime';
@@ -151,8 +158,37 @@ class ArchiveGoodsController extends Controller
         ]);
         Cache::put($cache_key,$nowTime);
         Cache::put($cache_key2,$all_total);
-    }
 
+    }
+    public function getMinPriceList(){
+        $url = "https://api.x-metash.com/api/prod/NFTMall/h5/home/archive";
+        $client = new GuzzleHttp\Client;
+        $param = [
+            'isTransfer' => 1,
+            'pageNum' => 1,
+            'pageSize' => 100,
+            'platformId' => 573,
+        ];
+        $headers = array(
+            'Accept' => 'application/json',
+            'content-type' => 'application/json',
+            'Accept-Charset' => 'utf-8'
+        );
+        $request = $client->post($url,
+            [
+                'headers'=>$headers,
+                'body'=>json_encode($param, JSON_UNESCAPED_SLASHES)
+            ]
+        );
+        $result = json_decode( $request->getBody(), true);
+        $records_goods = $result['data'];
+        return $records_goods;
+        echo ('-----------------------------');echo ('<br>');
+        foreach($records_goods as $record_goods){
+            echo ($record_goods['archiveName'].'售卖中最低价:'.$record_goods['goodsMinPrice']);
+            echo ('<br>');
+        }
+    }
     public function getDetail(){
         $statistics_id = DB::table('xmeta_statistics')->max('id');
         $goods_array = $this->goods_array;

@@ -28,3 +28,4 @@ Route::any('wechat', [App\Http\Controllers\Wechat\WechatReplyController::class, 
 Route::any('pingHKOKApi', [App\Http\Controllers\testApi\testApiController::class, 'pingHKOKApi']);
 Route::get('xmeta/updateGoods', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'updateGoods']);
 Route::get('xmeta/getDetail', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'getDetail']);
+Route::get('xmeta/getMinPriceList', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'getMinPriceList']);
