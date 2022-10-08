@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class ArchiveGoodsController extends Controller
 {
-    public function updateGoods(){
-        $goods_array = [
+    protected $goods_array;
+    public function __construct(){
+        $this->goods_array = [
             [
                 'name'      => '八宝金莲',
                 'archiveId' => '6917',
@@ -65,6 +66,9 @@ class ArchiveGoodsController extends Controller
                 'platformId'=> '573',
             ]
         ];
+    }
+    public function updateGoods(){
+        $goods_array = $this->goods_array;
 //        $goods_array = [
 //            [
 //                'name'      => '探索者',
@@ -147,5 +151,55 @@ class ArchiveGoodsController extends Controller
         ]);
         Cache::put($cache_key,$nowTime);
         Cache::put($cache_key2,$all_total);
+    }
+
+    public function getDetail(){
+        $statistics_id = DB::table('xmeta_statistics')->max('id');
+        $goods_array = $this->goods_array;
+        foreach($goods_array as &$goods){
+            //最高数据
+            $record_max = DB::table('xmeta_goods')
+                ->where('archiveId',$goods['archiveId'])
+                ->where('statistics_id',$statistics_id)
+                ->orderBy('goodsPrice','DESC')
+                ->first();
+            $goods['max_price'] = $record_max->goodsPrice ?? '0.00';
+            $goods['max_time'] = !empty($record_max->sellTime) ? date('Y-m-d',strtotime($record_max->sellTime)) : '-';
+            $goods['max_no'] = $record_max->goodsNo ?? '-';
+            //最低数据
+            $record_min = DB::table('xmeta_goods')
+                ->where('archiveId',$goods['archiveId'])
+                ->where('statistics_id',$statistics_id)
+                ->orderBy('goodsPrice','ASC')
+                ->first();
+            $goods['min_price'] = $record_min->goodsPrice ?? '0.00';
+            $goods['min_time'] = !empty($record_min->sellTime) ? date('Y-m-d',strtotime($record_min->sellTime)) : '-';
+            $goods['min_no'] = $record_min->goodsNo ?? '-';
+            //最新数据
+            $record_new = DB::table('xmeta_goods')
+                ->where('archiveId',$goods['archiveId'])
+                ->where('statistics_id',$statistics_id)
+                ->orderBy('sellTime','DESC')
+                ->first();
+            $goods['new_price'] = $record_new->goodsPrice ?? '0.00';
+            $goods['new_time'] = !empty($record_new->sellTime) ? date('Y-m-d',strtotime($record_new->sellTime)) : '-';
+            $goods['new_no'] = $record_new->goodsNo ?? '-';
+            //合计
+            $count = DB::table('xmeta_goods')
+                ->where('archiveId',$goods['archiveId'])
+                ->where('statistics_id',$statistics_id)
+                ->COUNT();
+            $goods['count'] = $count;
+            $total = DB::table('xmeta_goods')
+                ->where('archiveId',$goods['archiveId'])
+                ->where('statistics_id',$statistics_id)
+                ->SUM('goodsPrice');
+            $goods['total'] = $total;
+        }
+        return response()->json([
+            'code'  => 200,
+            'data'  => $goods_array,
+            'msg'   => 'success'
+        ]);
     }
 }
