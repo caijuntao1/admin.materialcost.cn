@@ -148,6 +148,7 @@ class ArchiveGoodsController extends Controller
                         'goodsPrice'    => $record_goods['goodsPrice'],
                         'sellStatus'    => $record_goods['sellStatus'],
                         'sellTime'      => $record_goods['sellTime'],
+                        'timePass'      => $record_goods['timePass'],
                         'created_at'    => time(),
                         'updated_at'    => time(),
                     ];
