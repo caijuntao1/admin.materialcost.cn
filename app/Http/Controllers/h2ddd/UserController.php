@@ -151,7 +151,7 @@ class UserController extends Controller
             echo ('<p style="font-size:70px">新账号免费赠送一次兑换,刷新当前页面即可自动兑换!'.'</p>');exit;
         }else{
             if($record_user->exchange_qty <= 0){
-                echo ('<p style="font-size:70px">该账号可兑换次数不足,请联系管理员充值'.'</p>');exit;
+                //echo ('<p style="font-size:70px">该账号可兑换次数不足,请联系管理员充值'.'</p>');exit;
             }
         }
         $is_changed = DB::table('h2ddd_user_exchange')
