@@ -26,4 +26,5 @@ Route::get('FirstPi/getCategoryList',[FirstPiController::class , 'getCategoryLis
 
 //氢动八蛇
 Route::get('h2ddd/exChangeSteps',[UserController::class , 'exChangeSteps']);
+Route::get('h2ddd/getProxyIp2',[UserController::class , 'getProxyIp2']);
 Route::get('h2ddd/autoExChange',[AutoExChange::class , 'autoExChange']);

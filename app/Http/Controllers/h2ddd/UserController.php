@@ -256,7 +256,7 @@ class UserController extends Controller
             return array(true,'get success',array('token'=>$record_user->token));
         }
         try {
-            $record_iplist = self::getProxyIp();
+            $record_iplist = self::getProxyIp2();
             $ip = $record_iplist['ip'];
             $http_port = $record_iplist['http_port'];
             $s5_port = $record_iplist['s5_port'];
@@ -380,6 +380,64 @@ class UserController extends Controller
         }
         return false;
     }
+    public static function getProxyIp2(){
+        $return_data = DB::table('h2ddd_iplist')->where('expire_at','>',time())->first();
+        if(!empty($return_data)){
+            return json_decode(json_encode($return_data),true);
+        }
+        $trade_no = DB::table('juliang_order')->where('expire_at','>',time())->orderBy('id','desc')->value('trade_no');
+        if(empty($trade_no)){
+            return false;
+        }
+        $host = "http://v2.api.juliangip.com";
+        $path = "/dynamic/getips";
+        $method = "GET";
+        $headers = array();
+        array_push($headers, "Content-Type:application/json");
+        array_push($headers, "Accept:application/json");
+        $querys = "filter=1&ip_remain=1&num=1&pt=2&result_type=json&trade_no=".$trade_no."&sign=f63b9e330a1ea3042826817dccf5d0ab";
+        $bodys = "";
+        $url = $host . $path . "?" . $querys;
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_FAILONERROR, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        if (1 == strpos("$".$host, "https://"))
+        {
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        }
+        $result = curl_exec($curl);
+        Log::info('获取ip数据:'.$result);
+        $response = json_decode($result,true);
+        if(!empty($response['data']['proxy_list'][0])){
+            $data = $response['data']['proxy_list'][0];
+            $data = explode(',',$data);
+            if(!$data){
+                return false;
+            }
+            $ip_data = explode(':',current($data));
+            if(!$ip_data){
+                return false;
+            }
+            $ip = current($ip_data);
+            $s5_port = next($ip_data);
+            $expire_at = $data[1]+time();
+            $insert_data = [
+                'ip'            => $ip,
+                'http_port'     => $s5_port,
+                's5_port'       => $s5_port,
+                'expire_at'     => $expire_at,
+            ];
+            DB::table('h2ddd_iplist')->insert($insert_data);
+            return $insert_data;
+        }
+        return false;
+    }
     private function getClientIp()
     {
         if (getenv('HTTP_CLIENT_IP')) {
@@ -413,7 +471,7 @@ class UserController extends Controller
         }elseif(is_array($post_data)){
             $post_string = http_build_query($post_data, '', '&');
         }
-        $record_iplist = self::getProxyIp();
+        $record_iplist = self::getProxyIp2();
         $ip = $record_iplist['ip'];
         $http_port = $record_iplist['http_port'];
         $s5_port = $record_iplist['s5_port'];
