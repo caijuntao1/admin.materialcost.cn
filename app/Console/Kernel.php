@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             Log::info("每日定时兑换步数");
             AutoExChange::autoExChange();
-        })->dailyAt('01:00');
+        })->dailyAt('12:00');
         $schedule->call(function () {
             Log::info("每五分钟定时监测网站状态");
             //香不香港测试环境

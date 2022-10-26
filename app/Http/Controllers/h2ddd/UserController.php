@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\h2ddd\UserModel;
 use Illuminate\Http\Request;
 use Validator;
-use Illuminate\Support\Facades\Log;
+use Log;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp;
 use DB;
@@ -125,8 +125,19 @@ class UserController extends Controller
         }
     }
     public function exChangeSteps2(Request $request){
+        $token = "h448jTanckxc1xhJ78MCNY19VeZOba1xJoebT2+IHOMK/I8S5xfqi5/qhRj2SduxoC4WjM0D4DDUSu9tUh4rP2FK+VfUmmba0iknC0Dtsx8Oz+t9mEsCNINPJZSMNeib0HBr/W8KG/dwGSfYF8ymeIkvaubcCEKWwxXbRJwDdfWp0+0mT3Cy9SxaeZLVBxXclhEiRg9pMlaVuOn/HBwLLSz7s2x+veB0yf+GxYfBsUa4sS5Qaoi2kTNvY4wsROfrLjV8EnqwZg3CsxAfD6PKZg+pIz06nUokaT+k0fJfoSZ4z340CMNYEkznpKj5AFNgl0HROtMDqirh5iVLsg9ydg==";
+        $result = $this->lottery($token);
+        var_dump($result);exit;
         $request_data = $request->all();
-        $validate = Validator::make($request_data,[
+        $result = $this->exChange($request_data['phone'],$request_data['password']);
+        $message = $result['msg'];
+        echo ('<p style="font-size:70px">'.$message.'</p>');exit;
+    }
+    public function exChange($phone ,$password){
+        $validate = Validator::make([
+            'phone' => $phone,
+            'password' => $password,
+        ],[
             'phone' => 'required',
             'password' => 'required',
         ],[
@@ -134,11 +145,8 @@ class UserController extends Controller
             'password.required' => '请输入密码',
         ]);
         if ($validate->fails()) {
-            echo ('<p style="font-size:70px">缺少必填参数或参数不对:'.current($validate->errors()->toArray())[0].'</p>');exit;
-            return response()->json(['code' => 201, 'msg' => '缺少必填参数或参数不对', 'data' => $validate->errors()->toArray()]);
+            return ['code' => 201, 'msg' => '缺少必填参数或参数不对', 'data' => (object)[]];
         }
-        $phone = $request_data['phone'];
-        $password = $request_data['password'];
         $record_user = UserModel::where('phone',$phone)->first();
         if(empty($record_user)){
             $success = UserModel::insert([
@@ -148,10 +156,10 @@ class UserController extends Controller
                 'updated_at'    => time(),
                 'exchange_qty'  => 1,
             ]);
-            echo ('<p style="font-size:70px">新账号免费赠送一次兑换,刷新当前页面即可自动兑换!'.'</p>');exit;
+            return ['code' => 201, 'msg' => '新账号免费赠送一次兑换,刷新当前页面即可自动兑换!', 'data' => (object)[]];
         }else{
             if($record_user->exchange_qty <= 0){
-                //echo ('<p style="font-size:70px">该账号可兑换次数不足,请联系管理员充值'.'</p>');exit;
+                //return ['code' => 201, 'msg' => '该账号可兑换次数不足,请联系管理员充值!', 'data' => (object)[]];
             }
         }
         $is_changed = DB::table('h2ddd_user_exchange')
@@ -160,7 +168,7 @@ class UserController extends Controller
             ->where('record',1)
             ->first();
         if($is_changed){
-            echo ('<p style="font-size:70px">该账号今日已成功兑换,请不要重复请求!'.'</p>');exit;
+           return ['code' => 201, 'msg' => '该账号今日已成功兑换,请不要重复请求!', 'data' => (object)[]];
         }
         try {
             list($result_code,$result_msg,$result_data) = $this->testLogin($phone,$password);
@@ -183,7 +191,7 @@ class UserController extends Controller
                         'updated_at'    => time(),
                         'record'        => 1,
                     ]);
-                    echo ('<p style="font-size:70px">'.$result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.($record_user->exchange_qty-1).'</p>');exit;
+                    return ['code' => 200, 'msg' => $result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.($record_user->exchange_qty-1), 'data' => $validate->errors()->toArray()];
                 }else{
                     throw new Exception($result['msg']);
                 }
@@ -200,11 +208,29 @@ class UserController extends Controller
                 'updated_at'    => time(),
                 'record'        => 2,
             ]);
-            echo ('<p style="font-size:70px">兑换失败:'.$exception->getMessage().'</p>');exit;
-            return array(false,'访问八蛇服务器失败!',array('token'=>null));
+            return ['code' => 201, 'msg' => '兑换失败:'.$exception->getMessage(), 'data' => (object)[]];
         }
     }
 
+    public function lottery($token){
+        try{
+            $url="https://www.h2ddd.com/api/luck_draw/play?draw_id=1";
+            $body = array();
+            $header = array("Content-Type:multipart/x-www-form-urlencoded",'token:'.$token);
+            $response = $this->curlPost($url, $body, 60, $header, 'json');
+            Log::info('token:'.$token.'抽奖成功:'.$response);
+            $result = json_decode($response,true);
+            Log::info($result);
+            if($result['code'] == 1){
+                return ['code' => 200, 'msg' => '抽奖成功:'.$result['msg'], 'data' => (object)[]];
+            }else{
+                throw new Exception($result['msg']);
+            }
+        }catch(\Exception $exception){
+            Log::info('token:'.$token.'抽奖失败:'.$exception->getMessage());
+            return ['code' => 201, 'msg' => '抽奖失败:'.$exception->getMessage(), 'data' => (object)[]];
+        }
+    }
     public function login($phone,$password){
         $url = "https://www.h2ddd.com/api/login/login";
         $param = [
