@@ -224,7 +224,7 @@ class UserController extends Controller
 
     public function lottery($token){
         try{
-            $url="https://www.h2ddd.com/api/luck_draw/play?draw_id=1";
+            $url="https://www.h2ddd.com/api/luck_draw/play?draw_id=2";
             $body = array();
             $header = array("Content-Type:multipart/x-www-form-urlencoded",'token:'.$token);
             $response = $this->curlPost($url, $body, 60, $header, 'json');
