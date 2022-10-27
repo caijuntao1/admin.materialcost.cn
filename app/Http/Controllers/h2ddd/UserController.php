@@ -367,8 +367,8 @@ class UserController extends Controller
                 return array(false,$response['msg'],array('token'=>null));
             }
         }catch (\Exception $exception){
-            Log::info('访问八蛇服务器失败:'.$exception->getMessage());
-            return array(false,'访问八蛇服务器失败!',array('token'=>null));
+            Log::info('登录时访问八蛇服务器失败:'.$exception->getMessage());
+            return array(false,'登录时访问八蛇服务器失败!',array('token'=>null));
         }
     }
     public static function getProxyIp(){
