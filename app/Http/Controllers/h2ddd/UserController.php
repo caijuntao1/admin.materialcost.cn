@@ -125,12 +125,19 @@ class UserController extends Controller
         }
     }
     public function exChangeSteps2(Request $request){
-        $token = "h448jTanckxc1xhJ78MCNY19VeZOba1xJoebT2+IHOMK/I8S5xfqi5/qhRj2SduxoC4WjM0D4DDUSu9tUh4rP2FK+VfUmmba0iknC0Dtsx8Oz+t9mEsCNINPJZSMNeib0HBr/W8KG/dwGSfYF8ymeIkvaubcCEKWwxXbRJwDdfWp0+0mT3Cy9SxaeZLVBxXclhEiRg9pMlaVuOn/HBwLLSz7s2x+veB0yf+GxYfBsUa4sS5Qaoi2kTNvY4wsROfrLjV8EnqwZg3CsxAfD6PKZg+pIz06nUokaT+k0fJfoSZ4z340CMNYEkznpKj5AFNgl0HROtMDqirh5iVLsg9ydg==";
-        $result = $this->lottery($token);
-        var_dump($result);exit;
         $request_data = $request->all();
         $result = $this->exChange($request_data['phone'],$request_data['password']);
         $message = $result['msg'];
+        if($result['code'] == 200){
+            //成功后进行抽奖
+            $lottery_result = $this->lottery($result['data']['token']);
+            if($lottery_result['code'] == 200){
+                echo ('<p style="font-size:70px">'.$message.',并已自动替你抽奖!</p>');
+            }else{
+                echo ('<p style="font-size:70px">'.$message.',但自动抽奖返回失败!'.$lottery_result['msg'].'</p>');
+            }
+            exit;
+        }
         echo ('<p style="font-size:70px">'.$message.'</p>');exit;
     }
     public function exChange($phone ,$password){
@@ -191,7 +198,10 @@ class UserController extends Controller
                         'updated_at'    => time(),
                         'record'        => 1,
                     ]);
-                    return ['code' => 200, 'msg' => $result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.($record_user->exchange_qty-1), 'data' => $validate->errors()->toArray()];
+                    return [
+                        'code' => 200,
+                        'msg' => $result['msg'].',此次兑换步数:'.$result['data']['steps'].';此次获得积分:'.$result['data']['score'].';当前剩余可兑换次数:'.($record_user->exchange_qty-1),
+                        'data' => ['token'=>$result_data['token']]];
                 }else{
                     throw new Exception($result['msg']);
                 }
