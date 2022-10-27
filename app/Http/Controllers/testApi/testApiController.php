@@ -86,7 +86,11 @@ class testApiController extends Controller
                 $content = $title.'访问失败,请尽快处理!!';
             }
             //访问错误,提醒管理员
-            $key = '1f818d945f5a856bb224440148940392b486fa029c40e084505b580a4fb6ca87';
+            if(in_array($title,['留学鸟正式环境','留学鸟测试环境'])){
+                $key = '7ad2dfb222359a3096597279104d9a486c255f5f02b63ac8cd3acf81698984a7';
+            }else{
+                $key = '1f818d945f5a856bb224440148940392b486fa029c40e084505b580a4fb6ca87';
+            }
             $response = self::sendMsg($key,$content);
             $result = json_decode($response,true);
             if($result['errcode'] == 0){
