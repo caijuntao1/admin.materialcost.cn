@@ -46,10 +46,10 @@ class AutoExChangeJobs implements ShouldQueue
             $UserController = new UserController();
             $result = $UserController->exChange($record_user['phone'],$record_user['password']);
             Log::info('自动步数兑换积分结果:' . json_encode($result));
-            if(!empty($result) && $result['code'] == 200){
-                $result = $UserController->lottery($record_user['token']);
-                Log::info('自动抽奖结果:' . json_encode($result));
-            }
+//            if(!empty($result) && $result['code'] == 200){
+//                $result = $UserController->lottery($record_user['token']);
+//                Log::info('自动抽奖结果:' . json_encode($result));
+//            }
         }
         Log::info('自动步数兑换积分结束');
     }

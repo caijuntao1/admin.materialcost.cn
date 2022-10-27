@@ -128,16 +128,16 @@ class UserController extends Controller
         $request_data = $request->all();
         $result = $this->exChange($request_data['phone'],$request_data['password']);
         $message = $result['msg'];
-        if($result['code'] == 200){
+//        if($result['code'] == 200){
             //成功后进行抽奖
-            $lottery_result = $this->lottery($result['data']['token']);
-            if($lottery_result['code'] == 200){
-                echo ('<p style="font-size:70px">'.$message.',并已自动替你抽奖!</p>');
-            }else{
-                echo ('<p style="font-size:70px">'.$message.',但自动抽奖返回失败!'.$lottery_result['msg'].'</p>');
-            }
-            exit;
-        }
+            //$lottery_result = $this->lottery($result['data']['token']);
+//            if($lottery_result['code'] == 200){
+//                echo ('<p style="font-size:70px">'.$message.',并已自动替你抽奖!</p>');
+//            }else{
+//                echo ('<p style="font-size:70px">'.$message.',但自动抽奖返回失败!'.$lottery_result['msg'].'</p>');
+//            }
+//            exit;
+//        }
         echo ('<p style="font-size:70px">'.$message.'</p>');exit;
     }
     public function exChange($phone ,$password){
