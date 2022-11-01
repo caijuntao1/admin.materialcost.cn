@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstPi\FirstPiController;
 use App\Http\Controllers\h2ddd\UserController;
 use App\Http\Controllers\h2ddd\AutoExChange;
+use App\Http\Controllers\Administrator\UsersController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,6 +19,14 @@ use App\Http\Controllers\h2ddd\AutoExChange;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+//登录注册
+Route::group(['namespace' => 'Administrator'],function (){
+    Route::any('users/login',[UsersController::class,'login']);
+});
+Route::group(['namespace' => 'Administrator','middleware'=>'refresh.token'],function (){
+    //测试是否携带token
+    Route::any('users/test',[UsersController::class,'test']);
 });
 Route::get('FirstPi/getFirstPiAllData',[FirstPiController::class , 'getFirstPiAPIData']);
 Route::get('FirstPi/updateAllData',[FirstPiController::class , 'updateAllData']);
