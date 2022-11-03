@@ -73,6 +73,7 @@ class UsersController extends Controller
                 'name'  => $data->name,
                 'email'  => $data->email,
                 'phone'  => $data->phone,
+                'role_id'  => $data->role_id,
                 'access_token' => 'bearer '.$token,
                 'token_type' => 'bearer'
             ],
