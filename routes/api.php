@@ -6,6 +6,7 @@ use App\Http\Controllers\FirstPi\FirstPiController;
 use App\Http\Controllers\h2ddd\UserController;
 use App\Http\Controllers\h2ddd\AutoExChange;
 use App\Http\Controllers\Administrator\UsersController;
+use App\Http\Controllers\CaseGoods\GoodsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,10 +25,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Administrator'],function (){
     Route::any('users/login',[UsersController::class,'login']);
 });
-Route::group(['namespace' => 'Administrator','middleware'=>'refresh.token'],function (){
+Route::group(['middleware'=>'refresh.token'],function (){
     //测试是否携带token
     Route::any('users/test',[UsersController::class,'test']);
+    Route::post('/Case/saveGoodsDetail',[GoodsController::class,'saveGoodsDetail']);
 });
+Route::get('/Case/getGoodsList',[GoodsController::class,'getGoodsList']);
 Route::get('FirstPi/getFirstPiAllData',[FirstPiController::class , 'getFirstPiAPIData']);
 Route::get('FirstPi/updateAllData',[FirstPiController::class , 'updateAllData']);
 Route::get('FirstPi/getList',[FirstPiController::class , 'getList']);

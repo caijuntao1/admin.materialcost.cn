@@ -1,0 +1,99 @@
+<?php
+
+
+namespace App\Http\Controllers\CaseGoods;
+
+
+use App\Http\Controllers\Controller;
+use App\Models\CaseGoods\CaseGoodsModel;
+use Illuminate\Http\Request;
+use Validator;
+use Illuminate\Support\Facades\Storage;
+
+class GoodsController extends Controller
+{
+    const LIMIT = 15;
+    public function getGoodsList(Request $request){
+        $request_data = $request->all();
+        $page = empty($request_data['page']) ? 1 : trim($request_data['page']);
+        $search_data = [];
+        //遍历筛选条件
+        foreach($request_data as $key => $value){
+            if(!empty($value)){
+                switch ($key){
+                    case 'sort_name':
+                    case 'sort_by':
+                    case 'keywords':
+                        $search_data[$key] = $value;
+                        break;
+                }
+            }
+        }
+        $return_data = CaseGoodsModel::getList($search_data,$request_data['limit'] ?? self::LIMIT,$page);
+        return response()->json(['code' => 200, 'msg' => 'success', 'data' => $return_data]);
+    }
+    public function saveGoodsDetail(Request $request){
+        $request_data = $request->all();
+        $validate = Validator::make($request_data,[
+            'title' => 'required',
+            'status' => 'required',
+            'goods_model_id' => 'required',
+        ],[
+            'title.required' => '请输入商品标题',
+            'status.required' => '请选择商品当前状态',
+            'goods_model_id.required' => '请选择商品型号',
+        ]);
+        if ($validate->fails()) {
+            return response()->json(['code' => 201, 'msg' => current($validate->errors()->toArray())[0], 'data' => $validate->errors()->toArray()]);
+        }
+        $id = $request_data['id'] ?? 0;
+        if(!$id && !$request->hasFile('file')){
+            return response()->json(['code' => 201, 'msg' => '请上传图片', 'data' => (object)[]]);
+        }
+        try {
+            $save_data = [];
+            $save_data['updated_at'] = time();
+            $save_data['title'] = $request_data['title'];
+            $save_data['status'] = $request_data['status'];
+            $save_data['price'] = $request_data['price'] ?? 0;
+            $save_data['goods_model_id'] = $request_data['goods_model_id'];
+            if($request->hasFile('file')){
+                $avatar = $request->file('file')->store('/public/images/CaseGoods');
+                $avatar = Storage::url($avatar);
+                $save_data['url'] = asset($avatar);
+            }
+            if(!$id){
+                //新增
+                $save_data['created_at'] = time();
+                $id = CaseGoodsModel::insertGetId($save_data);
+                if(!$id){
+                    throw new Exception('创建失败!');
+                }
+            }else{
+                //修改
+                $success = CaseGoodsModel::where('id',$id)
+                    ->update($save_data);
+                if(!$success){
+                    throw new Exception('更新失败!');
+                }
+            }
+            return response()->json(['code' => 200, 'msg' => 'success', 'data' => (object)[]]);
+        }catch (\ Exception $exception){
+            return response()->json(['code' => 201, 'msg' => $exception->getMessage(), 'data' => (object)[]]);
+        }
+    }
+    public static function random($length = 16)
+    {
+        $string = '';
+
+        while (($len = strlen($string)) < $length) {
+            $size = $length - $len;
+
+            $bytes = random_bytes($size);
+
+            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
+        }
+
+        return $string;
+    }
+}
