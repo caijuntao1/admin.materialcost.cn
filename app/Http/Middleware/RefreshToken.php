@@ -20,16 +20,15 @@ class RefreshToken extends BaseMiddleware
      */
     public function handle($request , Closure $next)
     {
-        //检查此次请求中，是否携带token，如果没有则抛出异常
-        $is_login = $this->checkForToken($request);
-        if(!$is_login){
-            return response()->json(array(
-                "code" => 4001,
-                "data" => null,
-                "msg" => "未登录",
-            ));
-        }
         try{
+            //检查此次请求中，是否携带token，如果没有则抛出异常
+            if(!$this->auth->parser()->setRequest($request)->hasToken()){
+                return response()->json(array(
+                    "code" => 4001,
+                    "data" => null,
+                    "msg" => "未登录",
+                ));
+            }
             //检测用户登录状态，如果正常，则通过
             if($this->auth->parseToken()->authenticate()){
                 return $next($request);
