@@ -13,7 +13,7 @@ class CaseGoodsModel extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'title',
+        'name',
         'url',
         'price',
         'status',
@@ -31,15 +31,17 @@ class CaseGoodsModel extends Model
             $records = self::when($status,function ($query) use($status){
                     $query->where('status',$status);
                 })
+                ->leftJoin('case_goods_model','case_goods_model.id','=','case_goods.goods_model_id')
                 ->select(
                     'case_goods.id',
-                    'case_goods.title',
+                    'case_goods.name',
                     'case_goods.url',
                     'case_goods.price',
                     'case_goods.status',
                     'case_goods.created_at',
                     'case_goods.updated_at',
-                    'case_goods.goods_model_id'
+                    'case_goods.goods_model_id',
+                    'case_goods_model.name as goods_model_name'
                 )
                 ->orderBy($sortName,$sortBy)
                 ->paginate($limit,['*'],'page',$page);

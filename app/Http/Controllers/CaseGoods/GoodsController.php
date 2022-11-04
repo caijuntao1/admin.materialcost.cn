@@ -35,11 +35,11 @@ class GoodsController extends Controller
     public function saveGoodsDetail(Request $request){
         $request_data = $request->all();
         $validate = Validator::make($request_data,[
-            'title' => 'required',
+            'name' => 'required',
             'status' => 'required',
             'goods_model_id' => 'required',
         ],[
-            'title.required' => '请输入商品标题',
+            'name.required' => '请输入商品标题',
             'status.required' => '请选择商品当前状态',
             'goods_model_id.required' => '请选择商品型号',
         ]);
@@ -53,7 +53,7 @@ class GoodsController extends Controller
         try {
             $save_data = [];
             $save_data['updated_at'] = time();
-            $save_data['title'] = $request_data['title'];
+            $save_data['name'] = $request_data['name'];
             $save_data['status'] = $request_data['status'];
             $save_data['price'] = $request_data['price'] ?? 0;
             $save_data['goods_model_id'] = $request_data['goods_model_id'];
