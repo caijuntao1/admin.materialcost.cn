@@ -26,10 +26,18 @@ class CaseGoodsModel extends Model
     public static function getList($search_data = array(),$limit = 15,$page = 1){
         try {
             $status = $search_data['status'] ?? '';
+            $keywords = $search_data['keywords'] ?? '';
+            $goods_model_id = $search_data['goods_model_id'] ?? '';
             $sortName = $search_data['sort_name'] ?? 'case_goods.updated_at';
             $sortBy = $search_data['sort_by'] ?? 'DESC';
             $records = self::when($status,function ($query) use($status){
                     $query->where('status',$status);
+                })
+                ->when($keywords,function ($query) use($keywords){
+                    $query->where('case_goods.name','like',"%$keywords%");
+                })
+                ->when($goods_model_id,function ($query) use($goods_model_id){
+                    $query->where('case_goods.goods_model_id',$goods_model_id);
                 })
                 ->leftJoin('case_goods_model','case_goods_model.id','=','case_goods.goods_model_id')
                 ->select(

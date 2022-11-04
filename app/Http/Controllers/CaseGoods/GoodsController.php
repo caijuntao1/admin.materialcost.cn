@@ -24,6 +24,7 @@ class GoodsController extends Controller
                     case 'sort_name':
                     case 'sort_by':
                     case 'keywords':
+                    case 'goods_model_id':
                         $search_data[$key] = $value;
                         break;
                 }
