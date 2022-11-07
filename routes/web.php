@@ -31,3 +31,7 @@ Route::any('pingHKOKApi', [App\Http\Controllers\testApi\testApiController::class
 Route::get('xmeta/updateGoods', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'updateGoods']);
 Route::get('xmeta/getDetail', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'getDetail']);
 Route::get('xmeta/getMinPriceList', [App\Http\Controllers\XMeta\ArchiveGoodsController::class, 'getMinPriceList']);
+
+Route::get('XL/updateGoods', [App\Http\Controllers\XMeta\XLArchiveGoodsController::class, 'updateGoods']);
+Route::get('XL/getDetail', [App\Http\Controllers\XMeta\XLArchiveGoodsController::class, 'getDetail']);
+Route::get('XL/getMinPriceList', [App\Http\Controllers\XMeta\XLArchiveGoodsController::class, 'getMinPriceList']);

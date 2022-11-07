@@ -10,11 +10,11 @@ use GuzzleHttp;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class ArchiveGoodsController extends Controller
+class XLArchiveGoodsController extends Controller
 {
     protected $platformId;
     public function __construct(){
-        $this->platformId = 573;
+        $this->platformId = 514;
     }
     public function getGoodsArray(){
         $url = "https://api.x-metash.com/api/prod/NFTMall/h5/home/archive";
@@ -55,10 +55,10 @@ class ArchiveGoodsController extends Controller
         $statistics_id = DB::table('xmeta_statistics')->insertGetId([
             'total_price'   => 0,
             'total_qty'   => 0,
+            'platformId'   => $this->platformId,
             'created_at'   => time(),
             'updated_at'   => time(),
             'data_json'   =>'',
-            'platformId' => $this->platformId
         ]);
         $records_category = $this->getMinPriceList();
         foreach($goods_array as $item){
@@ -118,8 +118,8 @@ class ArchiveGoodsController extends Controller
             }
             echo ('<br>');
         }
-        $cache_key = 'h2ddd_goods_last_updatetime';
-        $cache_key2 = 'h2ddd_goods_last_salestotal';
+        $cache_key = 'xl_goods_last_updatetime';
+        $cache_key2 = 'xl_goods_last_salestotal';
         $nowTime = time();
         echo ('当前查询'.date('Y-m-d H:i:s',$nowTime).'总计卖出:'.$all_total.'元;');
         if(Cache::has($cache_key)){
