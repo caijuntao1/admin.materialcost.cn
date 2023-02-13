@@ -7,6 +7,7 @@ use App\Http\Controllers\h2ddd\UserController;
 use App\Http\Controllers\h2ddd\AutoExChange;
 use App\Http\Controllers\Administrator\UsersController;
 use App\Http\Controllers\CaseGoods\GoodsController;
+use App\Http\Controllers\AliOss\ServiceController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,3 +41,6 @@ Route::get('FirstPi/getCategoryList',[FirstPiController::class , 'getCategoryLis
 Route::get('h2ddd/exChangeSteps',[UserController::class , 'exChangeSteps']);
 Route::get('h2ddd/getProxyIp2',[UserController::class , 'getProxyIp2']);
 Route::get('h2ddd/autoExChange',[AutoExChange::class , 'autoExChange']);
+
+//阿里云OSS
+Route::get('/AliOss/getOssProjectList',[ServiceController::class , 'getOssProjectList']);
