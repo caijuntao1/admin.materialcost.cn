@@ -102,7 +102,7 @@ class AliossService
             'file' => [], // 真正的文件数组
             'dir'  => [], // 真正的目录数组
         ];
-        Log::info('开始查找');
+        Log::info('开始查找1111');
         while (true) {
             $options = [
                 'delimiter' => $delimiter,
