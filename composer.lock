@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc473d4b8fe29f62bc7f8ef259fa40b4",
+    "content-hash": "0d6610d2f5627034bf92a07ee6c461a9",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -563,6 +563,7 @@
                 "crossdomain",
                 "laravel"
             ],
+            "abandoned": true,
             "time": "2022-02-23T14:25:13+00:00"
         },
         {
@@ -5433,6 +5434,86 @@
                 "validate"
             ],
             "time": "2022-06-03T18:03:27+00:00"
+        },
+        {
+            "name": "workerman/gateway-worker",
+            "version": "v4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/walkor/GatewayWorker.git",
+                "reference": "3a0f15a611f5815eb80312abaa64b9ad650e12f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/walkor/GatewayWorker/zipball/3a0f15a611f5815eb80312abaa64b9ad650e12f6",
+                "reference": "3a0f15a611f5815eb80312abaa64b9ad650e12f6",
+                "shasum": ""
+            },
+            "require": {
+                "workerman/workerman": "^4.0.0 || ^5.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GatewayWorker\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "homepage": "http://www.workerman.net",
+            "keywords": [
+                "communication",
+                "distributed"
+            ],
+            "time": "2023-02-01T09:12:41+00:00"
+        },
+        {
+            "name": "workerman/workerman",
+            "version": "v4.1.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/walkor/workerman.git",
+                "reference": "0df2093b09296f07f81e4cdfbe0582f3dfa183f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/walkor/workerman/zipball/0df2093b09296f07f81e4cdfbe0582f3dfa183f5",
+                "reference": "0df2093b09296f07f81e4cdfbe0582f3dfa183f5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "suggest": {
+                "ext-event": "For better performance. "
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Workerman\\": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "walkor",
+                    "email": "walkor@workerman.net",
+                    "homepage": "http://www.workerman.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An asynchronous event driven PHP framework for easily building fast, scalable network applications.",
+            "homepage": "http://www.workerman.net",
+            "keywords": [
+                "asynchronous",
+                "event-loop"
+            ],
+            "time": "2023-02-19T03:27:11+00:00"
         }
     ],
     "packages-dev": [
