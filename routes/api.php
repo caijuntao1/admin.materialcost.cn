@@ -26,12 +26,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Administrator'],function (){
     Route::any('users/login',[UsersController::class,'login']);
 });
+
 Route::group(['middleware'=>'refresh.token'],function (){
     //测试是否携带token
     Route::any('users/test',[UsersController::class,'test']);
     Route::post('/Case/saveGoodsDetail',[GoodsController::class,'saveGoodsDetail']);
 });
+//电商
 Route::get('/Case/getGoodsList',[GoodsController::class,'getGoodsList']);
+Route::post('/Case/uploadImage',[GoodsController::class,'uploadImage']);
+
+
 Route::get('FirstPi/getFirstPiAllData',[FirstPiController::class , 'getFirstPiAPIData']);
 Route::get('FirstPi/updateAllData',[FirstPiController::class , 'updateAllData']);
 Route::get('FirstPi/getList',[FirstPiController::class , 'getList']);

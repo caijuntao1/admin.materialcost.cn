@@ -97,4 +97,13 @@ class GoodsController extends Controller
 
         return $string;
     }
+    public static function uploadImage(Request $request){
+        if($request->hasFile('file')){
+            $avatar = $request->file('file')->store('/public/images/CaseGoods');
+            $avatar = Storage::url($avatar);
+            return response()->json(['code' => 200, 'msg' => 'success', 'data' => ['url'=>asset($avatar)]]);
+        }else{
+            return response()->json(['code' => 201, 'msg' => '上传失败', 'data' => (object)[]]);
+        }
+    }
 }
